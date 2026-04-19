@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --text: #042f2e;
+  --muted: #115e59;
+  --link: #0d9488;
+  --link-soft: #14b8a6;
+  --panel: rgba(240, 253, 250, 0.78);
+  --card: rgba(255, 255, 255, 0.65);
+  --shadow-3d: 0 25px 60px rgba(6, 78, 59, 0.22), 0 2px 0 rgba(255, 255, 255, 0.45) inset;
+  --toast-bg: rgba(255, 255, 255, 0.94);
+  --toast-border: rgba(13, 148, 136, 0.2);
+  --brand-glow: rgba(13, 148, 136, 0.38);
+  --mesh-a: rgba(20, 184, 166, 0.28);
+  --mesh-b: rgba(15, 118, 110, 0.2);
+}
+
+.dark {
+  --text: #ecfdf5;
+  --muted: #99f6e4;
+  --link: #5eead4;
+  --link-soft: #2dd4bf;
+  --panel: rgba(6, 78, 59, 0.55);
+  --card: rgba(15, 118, 110, 0.42);
+  --shadow-3d: 0 32px 90px rgba(0, 0, 0, 0.55), 0 1px 0 rgba(94, 234, 212, 0.12) inset;
+  --toast-bg: rgba(15, 118, 110, 0.94);
+  --toast-border: rgba(45, 212, 191, 0.22);
+  --brand-glow: rgba(45, 212, 191, 0.4);
+  --mesh-a: rgba(45, 212, 191, 0.22);
+  --mesh-b: rgba(13, 148, 136, 0.35);
+}
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+  body {
+    @apply antialiased;
+    color: var(--text);
+    background: radial-gradient(1100px 520px at 12% -8%, var(--mesh-a), transparent 52%),
+      radial-gradient(900px 480px at 88% 4%, var(--mesh-b), transparent 48%),
+      linear-gradient(180deg, #f0fdfa 0%, #ccfbf1 42%, #ecfeff 100%);
+  }
+  .dark body {
+    background: radial-gradient(1000px 500px at 14% -10%, var(--mesh-a), transparent 50%),
+      radial-gradient(820px 420px at 86% 0%, var(--mesh-b), transparent 46%),
+      linear-gradient(180deg, #020617 0%, #042f2e 38%, #022c22 100%);
+  }
+}
+
+@layer components {
+  /* Shared full-screen shell for auth & marketing */
+  .auth-page {
+    @apply relative min-h-screen overflow-hidden px-4 py-12 text-[var(--text)];
+  }
+  .auth-page::before {
+    content: "";
+    @apply pointer-events-none absolute inset-0;
+    background: radial-gradient(circle at 18% 18%, var(--mesh-a), transparent 42%),
+      radial-gradient(circle at 82% 12%, var(--mesh-b), transparent 38%);
+  }
+  .auth-page-inner {
+    @apply relative z-10 mx-auto w-full max-w-5xl;
+  }
+  .mesh-bg {
+    @apply min-h-screen;
+  }
+  .panel-3d {
+    box-shadow: var(--shadow-3d);
+    transform: translateZ(0);
+  }
+  .card-3d {
+    transform: translateY(0) rotateX(0);
+    transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+  }
+  .card-3d:hover {
+    transform: translateY(-4px) rotateX(2deg);
+    box-shadow: 0 35px 80px rgba(6, 78, 59, 0.35);
+  }
+  .dark .card-3d:hover {
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.62), 0 0 0 1px rgba(45, 212, 191, 0.08);
+  }
+  .skeleton {
+    @apply animate-pulse bg-gradient-to-br from-white/40 to-white/10 dark:from-white/10 dark:to-white/5;
+  }
+}
