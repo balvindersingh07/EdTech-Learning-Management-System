@@ -16,6 +16,7 @@ import { createAuthController } from "./interfaces/http/authController.js";
 import { createStudentRouter } from "./interfaces/http/studentRoutes.js";
 import { createInstructorRouter } from "./interfaces/http/instructorRoutes.js";
 import { createAdminRouter } from "./interfaces/http/adminRoutes.js";
+import { requestLogger } from "./interfaces/http/middleware/requestLogger.js";
 
 let singletonStore;
 
@@ -39,6 +40,7 @@ export function createLmsApp() {
   const app = express();
   app.use(cors({ origin: true, credentials: true }));
   app.use(express.json());
+  app.use(requestLogger());
 
   const authController = createAuthController(store);
 

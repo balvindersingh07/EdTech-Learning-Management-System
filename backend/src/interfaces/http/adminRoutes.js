@@ -2,6 +2,7 @@ import { Router } from "express";
 import { createAuthMiddleware } from "./middleware/authMiddleware.js";
 import { requireRole } from "./middleware/requireRole.js";
 import { ReportExporter, HtmlExporter, JsonExporter } from "../../patterns/bridge/ReportExporter.js";
+import { RoleGuardedHandlerDecorator } from "../../patterns/decorator/RoleGuardedHandlerDecorator.js";
 
 export function createAdminRouter(deps) {
   const { store } = deps;
@@ -30,9 +31,19 @@ export function createAdminRouter(deps) {
     return res.send(body);
   });
 
-  r.get("/activity", (_req, res) => {
-    return res.json(store.activityLog);
+  const activityInner = (_req, res) => res.json(store.activityLog);
+  const activityDecorated = new RoleGuardedHandlerDecorator(["admin"], activityInner, {
+    onAccess: (evt) => {
+      console.log(
+        JSON.stringify({
+          kind: "rbac_decorator",
+          ...evt,
+          t: new Date().toISOString(),
+        }),
+      );
+    },
   });
+  r.get("/activity", activityDecorated.asMiddleware());
 
   return r;
 }

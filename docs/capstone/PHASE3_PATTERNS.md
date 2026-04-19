@@ -8,6 +8,7 @@
 | Adapter | Structural | `backend/src/patterns/adapter/LegacyEmailAdapter.js` | Vendor API shape differs from internal sender | Notifications can integrate legacy SDKs safely |
 | Bridge | Structural | `backend/src/patterns/bridge/ReportExporter.js` | Multiple export targets | Swap HTML/JSON exporters without touching orchestrator |
 | Decorator | Structural | `backend/src/patterns/decorator/CachedCourseRepository.js` | Hot read paths need TTL cache | Transparent caching without forking repository code |
+| Decorator (RBAC) | Structural | `backend/src/patterns/decorator/RoleGuardedHandlerDecorator.js` | Operation-level role policy + audit hook | Wraps handlers with allowed roles and `onAccess` without changing inner handler |
 | Observer | Behavioral | `backend/src/patterns/observer/DomainEvents.js` | Submission should fan out to notifications | Decouples grading/submission workflow from side effects |
 | Strategy | Behavioral | `backend/src/patterns/strategy/GradingStrategy.js` | Multiple grading schemes | Instructor grading endpoint selects strategy per payload |
 | State | Behavioral | `backend/src/patterns/state/AssignmentSubmissionState.js` | Illegal lifecycle jumps | Explicit transitions for draft → submitted |
