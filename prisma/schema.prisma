@@ -1,0 +1,23 @@
+// EdTech LMS — SQLite (local file). Step 2: User / Course models add karange.
+// Generate client: npm run db:generate
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  // Path relative to this file → prisma/dev.db (no .env required for generate/validate)
+  url      = "file:./dev.db"
+}
+
+/// LMS user — matches backend seed ids until we wire full migration.
+model User {
+  id        String   @id
+  email     String   @unique
+  name      String
+  password  String
+  role      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

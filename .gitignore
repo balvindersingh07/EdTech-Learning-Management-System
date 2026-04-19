@@ -25,3 +25,7 @@ Thumbs.db
 
 # Test
 coverage/
+
+# Prisma local DB
+prisma/dev.db
+prisma/dev.db-journal
