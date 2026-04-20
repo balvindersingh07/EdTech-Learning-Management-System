@@ -20,6 +20,8 @@ export interface ModuleLecture {
   title: string;
   durationMin: number;
   type: "video" | "reading" | "quiz";
+  /** Optional MP4 (or other) URL for HTML5 video — seeded catalog includes a demo clip. */
+  contentUrl?: string;
 }
 
 export interface CourseModule {

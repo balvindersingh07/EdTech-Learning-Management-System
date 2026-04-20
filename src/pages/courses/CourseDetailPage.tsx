@@ -102,13 +102,32 @@ export function CourseDetailPage() {
                           {mod.lectures.map((lec) => (
                             <div
                               key={lec.id}
-                              className="flex items-center justify-between rounded-xl bg-white/5 px-3 py-2 text-sm"
+                              className="space-y-2 rounded-xl bg-white/5 px-3 py-3 text-sm"
                             >
-                              <div>
-                                <p className="font-medium text-[var(--text)]">{lec.title}</p>
-                                <p className="text-xs text-[var(--muted)]">{lec.type}</p>
+                              <div className="flex flex-wrap items-start justify-between gap-2">
+                                <div>
+                                  <p className="font-medium text-[var(--text)]">{lec.title}</p>
+                                  <p className="text-xs text-[var(--muted)]">
+                                    {lec.type} · {lec.durationMin} min
+                                  </p>
+                                </div>
                               </div>
-                              <span className="text-xs text-[var(--muted)]">{lec.durationMin} min</span>
+                              {lec.type === "video" && lec.contentUrl ? (
+                                <video
+                                  controls
+                                  className="w-full max-w-xl rounded-xl border border-white/10 bg-black/50"
+                                  preload="metadata"
+                                  src={lec.contentUrl}
+                                />
+                              ) : lec.type === "video" ? (
+                                <p className="text-xs text-[var(--muted)]">
+                                  No stream URL on this lecture (add <code>contentUrl</code> in course data).
+                                </p>
+                              ) : lec.type === "reading" ? (
+                                <p className="text-xs text-[var(--muted)]">
+                                  Reading — attach PDF/links in a full content pipeline.
+                                </p>
+                              ) : null}
                             </div>
                           ))}
                         </div>
