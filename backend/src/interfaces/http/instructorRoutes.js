@@ -16,6 +16,43 @@ export function createInstructorRouter(deps) {
 
   r.use(auth, requireRole("instructor"));
 
+  r.get("/reports/summary", (req, res) => {
+    const instructorId = req.user.sub;
+    const courses = store.listInstructorCourses(instructorId);
+    const assignments = store.listInstructorAssignments(instructorId);
+    const submissionCount = store.countSubmissionsForInstructor(instructorId);
+    const gradingPending = assignments.filter((a) => a.status === "submitted").length;
+    const maxEnrolled = Math.max(1, ...courses.map((c) => c.enrolledCount ?? 0));
+    return res.json({
+      courseCount: courses.length,
+      assignmentCount: assignments.length,
+      submissionCount,
+      gradingPending,
+      courses: courses.map((c) => ({
+        id: c.id,
+        title: c.title,
+        enrolledCount: c.enrolledCount ?? 0,
+        subjectName: c.subjectName ?? c.category,
+        barPercent: Math.round(((c.enrolledCount ?? 0) / maxEnrolled) * 100),
+      })),
+    });
+  });
+
+  r.get("/submissions/recent", (req, res) => {
+    const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 12));
+    const rows = store.listRecentSubmissionsForInstructor(req.user.sub, limit);
+    return res.json(rows);
+  });
+
+  r.post("/subjects", async (req, res) => {
+    const { name } = req.body ?? {};
+    if (!name || typeof name !== "string" || !name.trim()) {
+      return res.status(400).json({ message: "name required" });
+    }
+    const created = await store.withWrite(async () => store.addCustomSubject(name.trim()));
+    return res.status(201).json(created);
+  });
+
   r.get("/courses", (req, res) => {
     const list = store.listInstructorCourses(req.user.sub);
     return res.json(list);
@@ -34,20 +71,30 @@ export function createInstructorRouter(deps) {
   r.post("/courses", async (req, res) => {
     const instructorId = req.user.sub;
     const instructor = store.getUserById(instructorId);
-    const { title, description, category, level } = req.body ?? {};
+    const { title, description, category, level, subject } = req.body ?? {};
     if (!title || !description) {
       return res.status(400).json({ message: "title and description required" });
     }
-    const id = `c_${Math.random().toString(36).slice(2, 8)}`;
+    if (!subject || typeof subject !== "string") {
+      return res.status(400).json({ message: "subject (code) required — use GET /catalog/subjects" });
+    }
+    const subjects = store.listSubjects();
+    const subj = subjects.find((s) => s.code === subject);
+    if (!subj) {
+      return res.status(400).json({ message: "Unknown subject code" });
+    }
+    const id = `lms-course-${Math.random().toString(36).slice(2, 10)}`;
     const course = new CourseBuilder()
       .withBasics({
         title,
         description,
-        category: category ?? "General",
+        category: category ?? subj.name,
         level: level ?? "Beginner",
         instructorId,
         instructorName: instructor?.name ?? "Instructor",
       })
+      .withSubject(subj.code, subj.name)
+      .withBuiltIn(false)
       .build(id);
 
     await store.withWrite(async () => {
@@ -64,13 +111,22 @@ export function createInstructorRouter(deps) {
     if (!profile.ownsCourse(course)) {
       return res.status(403).json({ message: "You do not own this course" });
     }
-    const { title, description, category, level } = req.body ?? {};
+    if (course.isBuiltIn) {
+      return res.status(403).json({ message: "Built-in catalog courses cannot be edited" });
+    }
+    const { title, description, category, level, subject } = req.body ?? {};
+    const subjects = subject ? store.listSubjects() : null;
+    const subj = subject && subjects ? subjects.find((s) => s.code === subject) : null;
+    if (subject && !subj) {
+      return res.status(400).json({ message: "Unknown subject code" });
+    }
     const next = {
       ...course,
       ...(title ? { title } : {}),
       ...(description ? { description } : {}),
       ...(category ? { category } : {}),
       ...(level ? { level } : {}),
+      ...(subj ? { subject: subj.code, subjectName: subj.name } : {}),
     };
     await store.withWrite(async () => {
       store.upsertCourse(next);

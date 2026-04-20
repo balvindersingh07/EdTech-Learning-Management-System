@@ -1,4 +1,4 @@
-import type { Assignment } from "@/types";
+import type { Assignment, InstructorRecentSubmission } from "@/types";
 import { api } from "../api";
 
 export interface SubmissionBundle {
@@ -15,6 +15,12 @@ export interface SubmissionBundle {
 }
 
 export const instructorAssignmentService = {
+  async listRecentSubmissions(limit = 12): Promise<InstructorRecentSubmission[]> {
+    const { data } = await api.get<InstructorRecentSubmission[]>("/v1/instructor/submissions/recent", {
+      params: { limit },
+    });
+    return data;
+  },
   async list(): Promise<Assignment[]> {
     const { data } = await api.get<Assignment[]>("/v1/instructor/assignments");
     return data;

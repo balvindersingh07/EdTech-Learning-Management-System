@@ -3,36 +3,79 @@
  */
 import express from "express";
 import cors from "cors";
-import jwt from "jsonwebtoken";
 import { AppConfig } from "./patterns/singleton/AppConfig.js";
 import { InMemoryStore } from "./infrastructure/InMemoryStore.js";
 import { seedData } from "./infrastructure/seedData.js";
 import { CourseRepository } from "./infrastructure/CourseRepository.js";
 import { CachedCourseRepository } from "./patterns/decorator/CachedCourseRepository.js";
 import { LegacyEmailAdapter } from "./patterns/adapter/LegacyEmailAdapter.js";
-import { registerNotificationObserver } from "./patterns/observer/DomainEvents.js";
-import { UserFactory } from "./patterns/factory/UserFactory.js";
+import { clearAssignmentSubmittedListeners, registerNotificationObserver } from "./patterns/observer/DomainEvents.js";
 import { createAuthController } from "./interfaces/http/authController.js";
+import { createAuthMiddleware } from "./interfaces/http/middleware/authMiddleware.js";
 import { createStudentRouter } from "./interfaces/http/studentRoutes.js";
 import { createInstructorRouter } from "./interfaces/http/instructorRoutes.js";
 import { createAdminRouter } from "./interfaces/http/adminRoutes.js";
 import { requestLogger } from "./interfaces/http/middleware/requestLogger.js";
+import { applyAdminEnvOverrides } from "./infrastructure/bootstrapAdmin.js";
 
 let singletonStore;
+let initialized = false;
 
 export function getLmsStore() {
   return singletonStore;
 }
 
-export function createLmsApp() {
-  const config = AppConfig.getInstance();
-
-  if (!singletonStore) {
+/**
+ * Standalone API: load/save full LMS state via Prisma `AppStateSnapshot` after each `withWrite`.
+ * @param {import("@prisma/client").PrismaClient} prisma
+ */
+export async function initLmsBackend(prisma) {
+  if (initialized) return;
+  try {
+    const row = await prisma.appStateSnapshot.findUnique({ where: { id: 1 } });
+    const json = row?.payload;
+    singletonStore = json ? InMemoryStore.fromExportedState(JSON.parse(json)) : new InMemoryStore(seedData);
+    const origWithWrite = singletonStore.withWrite.bind(singletonStore);
+    singletonStore.withWrite = async (fn) => {
+      const result = await origWithWrite(fn);
+      const payload = JSON.stringify(singletonStore.exportState());
+      await prisma.appStateSnapshot.upsert({
+        where: { id: 1 },
+        create: { id: 1, payload },
+        update: { payload },
+      });
+      return result;
+    };
+  } catch (e) {
+    console.warn("[LMS] Prisma snapshot unavailable, using in-memory seed:", e?.message ?? e);
     singletonStore = new InMemoryStore(seedData);
-    const legacyAdapter = new LegacyEmailAdapter();
-    registerNotificationObserver(singletonStore, legacyAdapter);
+  }
+  applyAdminEnvOverrides(singletonStore);
+  registerNotificationObserver(singletonStore, new LegacyEmailAdapter());
+  initialized = true;
+}
+
+function initLmsBackendSyncFromSeed() {
+  if (initialized) return;
+  singletonStore = new InMemoryStore(seedData);
+  applyAdminEnvOverrides(singletonStore);
+  registerNotificationObserver(singletonStore, new LegacyEmailAdapter());
+  initialized = true;
+}
+
+/** Vitest / isolated runs */
+export function resetLmsBackendForTests() {
+  clearAssignmentSubmittedListeners();
+  initialized = false;
+  singletonStore = undefined;
+}
+
+export function createLmsApp() {
+  if (!initialized) {
+    initLmsBackendSyncFromSeed();
   }
 
+  const config = AppConfig.getInstance();
   const store = singletonStore;
   const innerRepo = new CourseRepository(store);
   const courseRepo = new CachedCourseRepository(innerRepo, config.cacheTtlMs);
@@ -43,53 +86,23 @@ export function createLmsApp() {
   app.use(requestLogger());
 
   const authController = createAuthController(store);
+  const bearerAuth = createAuthMiddleware();
 
   app.get("/health", (_req, res) => res.json({ ok: true }));
+
+  app.get(`${config.apiPrefix}/catalog/subjects`, (_req, res) => {
+    return res.json(store.listSubjects());
+  });
+
+  app.get(`${config.apiPrefix}/notifications`, bearerAuth, (_req, res) => {
+    return res.json(store.notifications);
+  });
 
   app.post(`${config.apiPrefix}/auth/login`, (req, res, next) => {
     authController.login(req, res).catch(next);
   });
   app.post(`${config.apiPrefix}/auth/signup`, (req, res, next) => {
     authController.signup(req, res).catch(next);
-  });
-
-  /**
-   * Azure AD / Microsoft Entra ID — demo using ID token claims only.
-   * Production: validate `idToken` signature + issuer + audience via Microsoft JWKS.
-   */
-  app.post(`${config.apiPrefix}/auth/azure`, (req, res, next) => {
-    (async () => {
-      const { idToken } = req.body ?? {};
-      if (!idToken || typeof idToken !== "string") {
-        return res.status(400).json({ message: "idToken required" });
-      }
-      const decoded = jwt.decode(idToken);
-      if (!decoded || typeof decoded !== "object") {
-        return res.status(400).json({ message: "Invalid token" });
-      }
-      const email =
-        decoded.preferred_username ||
-        decoded.email ||
-        decoded.upn ||
-        decoded.unique_name;
-      if (!email || typeof email !== "string") {
-        return res.status(400).json({ message: "Token missing email claim" });
-      }
-      const record = store.getUserByEmail(String(email).trim());
-      if (!record) {
-        return res.status(404).json({
-          message:
-            "No LMS user matches this Microsoft account. Create an account with the same email or ask an admin.",
-        });
-      }
-      const { password: _p, ...safe } = record;
-      const profile = UserFactory.fromRecord(safe);
-      const dto = profile.toPublicDTO();
-      const token = jwt.sign({ sub: dto.id, role: dto.role, email: dto.email }, config.jwtSecret, {
-        expiresIn: "7d",
-      });
-      return res.json({ user: dto, token });
-    })().catch(next);
   });
 
   app.use(`${config.apiPrefix}/student`, createStudentRouter({ store, courseRepo }));

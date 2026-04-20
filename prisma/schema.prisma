@@ -1,5 +1,5 @@
-// EdTech LMS — SQLite (local file). Step 2: User / Course models add karange.
-// Generate client: npm run db:generate
+// EdTech LMS — SQLite. Snapshot row persists full in-memory LMS state for standalone API.
+// Generate: npm run db:generate — Migrate: npm run db:migrate
 
 generator client {
   provider = "prisma-client-js"
@@ -7,17 +7,24 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  // Path relative to this file → prisma/dev.db (no .env required for generate/validate)
   url      = "file:./dev.db"
 }
 
-/// LMS user — matches backend seed ids until we wire full migration.
+/// Kept for future normalized user queries; runtime source of truth for standalone server is AppStateSnapshot when enabled.
 model User {
-  id        String   @id
-  email     String   @unique
-  name      String
-  password  String
-  role      String
-  createdAt DateTime @default(now())
+  id             String   @id
+  email          String   @unique
+  name           String
+  password       String
+  role           String
+  accountStatus  String   @default("active")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+/// Full LMS store JSON — courses, users, enrollments, etc. (see InMemoryStore.exportState).
+model AppStateSnapshot {
+  id        Int      @id @default(1)
+  payload   String
   updatedAt DateTime @updatedAt
 }

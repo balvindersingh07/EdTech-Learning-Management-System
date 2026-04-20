@@ -7,6 +7,7 @@ export class CourseBuilder {
       modules: [],
       enrolledCount: 0,
       rating: 5,
+      isBuiltIn: false,
     };
   }
 
@@ -30,6 +31,21 @@ export class CourseBuilder {
     return this;
   }
 
+  /**
+   * @param {string} code Subject code (e.g. lms-subj-engineering)
+   * @param {string} [displayName] Human-readable name
+   */
+  withSubject(code, displayName) {
+    this._payload.subject = code;
+    this._payload.subjectName = displayName ?? code;
+    return this;
+  }
+
+  withBuiltIn(value) {
+    this._payload.isBuiltIn = Boolean(value);
+    return this;
+  }
+
   build(id) {
     if (!this._payload.title) throw new Error("Course title required");
     const slug =
@@ -45,6 +61,9 @@ export class CourseBuilder {
         this._payload.thumbnailUrl ??
         "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80",
       ...this._payload,
+      isBuiltIn: this._payload.isBuiltIn ?? false,
+      subject: this._payload.subject,
+      subjectName: this._payload.subjectName ?? this._payload.subject,
     };
   }
 }

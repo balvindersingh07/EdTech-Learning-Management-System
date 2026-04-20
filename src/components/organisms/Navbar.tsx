@@ -1,11 +1,11 @@
 import { Button } from "@/components/atoms/Button";
 import { NotificationDropdown } from "@/components/organisms/NotificationDropdown";
-import { dummyNotifications } from "@/data/dummyData";
 import { useTheme } from "@/hooks/useTheme";
+import { notificationService } from "@/services/notificationService";
 import { logout } from "@/store/slices/authSlice";
 import type { UserRole } from "@/types";
 import type { NotificationItem } from "@/types";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -19,11 +19,29 @@ export interface NavbarProps {
 export function Navbar({ onMenu, userName, userRole }: NavbarProps) {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const token = useAppSelector((s) => s.auth.token);
   const cartCount = useAppSelector((s) => s.enrollment.cart.length);
   const { isDark, toggle } = useTheme();
-  const [notifications, setNotifications] = useState<NotificationItem[]>(() =>
-    structuredClone(dummyNotifications),
-  );
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+
+  useEffect(() => {
+    if (!token) {
+      setNotifications([]);
+      return;
+    }
+    let cancelled = false;
+    notificationService
+      .list()
+      .then((rows) => {
+        if (!cancelled) setNotifications(rows);
+      })
+      .catch(() => {
+        if (!cancelled) setNotifications([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
 
   const unreadCount = useMemo(() => notifications.filter((n) => !n.read).length, [notifications]);
 

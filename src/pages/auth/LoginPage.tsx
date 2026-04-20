@@ -2,13 +2,12 @@ import { Badge } from "@/components/atoms/Badge";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Card } from "@/components/molecules/Card";
-import { MicrosoftLoginButton } from "@/components/auth/MicrosoftLoginButton";
-import { dummyUsers } from "@/data/dummyData";
+import { loginHintUsers } from "@/data/loginHints";
 import { pathsForRole } from "@/lib/appPaths";
 import type { UserRole } from "@/types";
-import { login } from "@/store/slices/authSlice";
+import { clearAuthMessages, login } from "@/store/slices/authSlice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
@@ -24,21 +23,26 @@ export function LoginPage() {
   const status = useAppSelector((s) => s.auth.status);
   const serverError = useAppSelector((s) => s.auth.error);
 
-  const [email, setEmail] = useState("alex@example.com");
-  const [password, setPassword] = useState("password");
+  const [email, setEmail] = useState("admin@lms.local");
+  const [password, setPassword] = useState("Admin@123");
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
+
+  useEffect(() => {
+    dispatch(clearAuthMessages());
+  }, [dispatch]);
 
   const from = (location.state as { from?: string } | null)?.from;
 
   const hints = useMemo(
     () =>
-      dummyUsers.map((u) => (
+      loginHintUsers.map((u) => (
         <button
           key={u.id}
           type="button"
           className="text-left"
           onClick={() => {
+            dispatch(clearAuthMessages());
             setEmail(u.email);
             toast.success(`Filled demo ${u.role} account`);
           }}
@@ -114,18 +118,21 @@ export function LoginPage() {
             Learn with structure. Teach with clarity.
           </h1>
           <p className="text-[var(--muted)]">
-            A focused workspace for students, instructors, and admins — with optional Microsoft (Azure AD) sign-in
-            when you configure tenant + client IDs.
+            Students and instructors sign up, then an admin approves them. The admin account is static (see demo hint).
+            Sign in with email and password.
           </p>
           <div className="rounded-[1.25rem] border border-white/10 bg-[var(--panel)]/70 p-4 shadow-[var(--shadow-3d)] backdrop-blur-xl">
-            <p className="text-sm font-semibold text-[var(--text)]">Demo accounts</p>
-            <p className="mt-1 text-xs text-[var(--muted)]">Password for all: use “password” (6+ chars).</p>
+            <p className="text-sm font-semibold text-[var(--text)]">Bootstrap admin (demo)</p>
+            <p className="mt-1 text-xs text-[var(--muted)]">
+              Default password <code className="text-[var(--text)]">Admin@123</code> unless overridden by{" "}
+              <code className="text-[var(--text)]">ADMIN_PASSWORD</code> on the API process.
+            </p>
             <div className="mt-3 flex flex-col gap-2">{hints}</div>
           </div>
         </div>
         <Card
           title="Sign in"
-          description="Email & password, or Microsoft where configured."
+          description="Use the email and password you registered with (or the bootstrap admin below)."
           padding="lg"
           className="border-white/10 bg-[var(--card)]/85 shadow-[var(--shadow-3d)] backdrop-blur-xl"
         >
@@ -136,7 +143,10 @@ export function LoginPage() {
               type="email"
               autoComplete="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                dispatch(clearAuthMessages());
+                setEmail(e.target.value);
+              }}
               error={errors.email}
             />
             <Input
@@ -145,7 +155,10 @@ export function LoginPage() {
               type={showPassword ? "text" : "password"}
               autoComplete="current-password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                dispatch(clearAuthMessages());
+                setPassword(e.target.value);
+              }}
               error={errors.password}
               rightAdornment={passwordToggle}
             />
@@ -158,15 +171,6 @@ export function LoginPage() {
               Continue
             </Button>
           </form>
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center" aria-hidden>
-              <div className="w-full border-t border-white/10" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase tracking-wide">
-              <span className="bg-[var(--card)] px-2 text-[var(--muted)]">Or</span>
-            </div>
-          </div>
-          <MicrosoftLoginButton onSuccess={(user) => goAfterAuth(user.role)} />
           <p className="mt-6 text-center text-sm text-[var(--muted)]">
             New here?{" "}
             <Link className="font-semibold text-[var(--link)] hover:underline" to="/signup">

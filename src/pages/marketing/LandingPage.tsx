@@ -13,7 +13,7 @@ const pillars = [
   },
   {
     title: "Admins",
-    copy: "Users, audit trails, and platform reports via Azure-ready APIs — separate from classroom workflows.",
+    copy: "Users, audit trails, and platform reports via admin APIs — separate from classroom workflows.",
     accent: "from-teal-500/40 to-cyan-950/45",
   },
 ];
@@ -55,7 +55,7 @@ export function LandingPage() {
         <section className="grid items-center gap-12 lg:grid-cols-[1.1fr,0.9fr]">
           <div className="space-y-6">
             <p className="inline-flex rounded-full bg-white/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-teal-100 ring-1 ring-teal-400/25">
-              Modular · Secure · Azure-ready
+              Modular · Secure · API-first
             </p>
             <h1 className="text-4xl font-black leading-tight tracking-tight sm:text-5xl lg:text-6xl">
               A 3D-grade LMS experience for every role —{" "}
@@ -64,8 +64,8 @@ export function LandingPage() {
               </span>
             </h1>
             <p className="max-w-xl text-lg text-[var(--muted)]">
-              Students learn in one lane, instructors teach in another, and admins govern the platform. OAuth with
-              Microsoft Entra ID (Azure AD) is wired for single sign-on when you drop in tenant and client IDs.
+              Students learn in one lane, instructors teach in another, and admins govern the platform. Authentication is
+              JWT-based today; you can plug in your own database and SSO when you wire production.
             </p>
             <div className="flex flex-wrap gap-3">
               <Link
@@ -126,7 +126,7 @@ export function LandingPage() {
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_12px_#34d399]" />
-                    Microsoft identity (MSAL) optional — same email as an LMS user
+                    Role-scoped REST API — swap persistence without rewriting HTTP contracts
                   </li>
                 </ul>
                 <div

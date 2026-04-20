@@ -11,8 +11,36 @@ export function createAdminRouter(deps) {
 
   r.use(auth, requireRole("admin"));
 
+  r.get("/stats", (_req, res) => {
+    return res.json({
+      users: store.users.size,
+      courses: store.courses.size,
+      assignments: store.assignments.size,
+    });
+  });
+
   r.get("/users", (_req, res) => {
     return res.json(store.platformUsers);
+  });
+
+  r.post("/users/:userId/approve", async (req, res, next) => {
+    try {
+      const ok = await store.withWrite(async () => store.setAccountStatus(req.params.userId, "active"));
+      if (!ok) return res.status(404).json({ message: "User not found" });
+      return res.json({ ok: true });
+    } catch (e) {
+      next(e);
+    }
+  });
+
+  r.post("/users/:userId/reject", async (req, res, next) => {
+    try {
+      const ok = await store.withWrite(async () => store.setAccountStatus(req.params.userId, "rejected"));
+      if (!ok) return res.status(404).json({ message: "User not found" });
+      return res.json({ ok: true });
+    } catch (e) {
+      next(e);
+    }
   });
 
   r.get("/reports/summary", (req, res) => {

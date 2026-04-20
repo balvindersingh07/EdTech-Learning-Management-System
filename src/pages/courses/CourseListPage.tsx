@@ -23,7 +23,9 @@ function filterCourses(courses: Course[], filters: { category: string; q: string
       (c) =>
         c.title.toLowerCase().includes(q) ||
         c.description.toLowerCase().includes(q) ||
-        c.instructorName.toLowerCase().includes(q),
+        c.instructorName.toLowerCase().includes(q) ||
+        (c.subjectName?.toLowerCase().includes(q) ?? false) ||
+        (c.subject?.toLowerCase().includes(q) ?? false),
     );
   }
   return list;
@@ -128,7 +130,8 @@ export function CourseListPage() {
                   alt=""
                   className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                 />
-                <div className="absolute left-3 top-3 flex gap-2">
+                <div className="absolute left-3 top-3 flex flex-wrap gap-2">
+                  {course.subjectName ? <Badge tone="success">{course.subjectName}</Badge> : null}
                   <Badge tone="info">{course.category}</Badge>
                   <Badge tone="neutral">{course.level}</Badge>
                 </div>

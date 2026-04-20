@@ -2,11 +2,32 @@ import { Badge } from "@/components/atoms/Badge";
 import { Card } from "@/components/molecules/Card";
 import { Table } from "@/components/organisms/Table";
 import { adminPaths } from "@/lib/appPaths";
-import { dummyActivity, dummyPlatformUsers } from "@/data/dummyData";
-import type { PlatformUserRow } from "@/types";
+import { adminService } from "@/services/admin/adminService";
+import type { ActivityLogEntry, PlatformUserRow } from "@/types";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import toast from "react-hot-toast";
 
 export function AdminDashboardPage() {
+  const [users, setUsers] = useState<PlatformUserRow[]>([]);
+  const [activity, setActivity] = useState<ActivityLogEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(() => {
+    return Promise.all([adminService.listUsers(), adminService.activity()])
+      .then(([u, a]) => {
+        setUsers(u);
+        setActivity(a);
+      })
+      .catch(() => {
+        toast.error("Could not load admin data");
+      });
+  }, []);
+
+  useEffect(() => {
+    void load().finally(() => setLoading(false));
+  }, [load]);
+
   const columns = [
     {
       key: "name",
@@ -27,7 +48,17 @@ export function AdminDashboardPage() {
       key: "status",
       header: "Status",
       render: (row: PlatformUserRow) => (
-        <Badge tone={row.status === "active" ? "success" : row.status === "invited" ? "warning" : "danger"}>
+        <Badge
+          tone={
+            row.status === "active"
+              ? "success"
+              : row.status === "invited" || row.status === "pending"
+                ? "warning"
+                : row.status === "rejected" || row.status === "suspended"
+                  ? "danger"
+                  : "neutral"
+          }
+        >
           {row.status}
         </Badge>
       ),
@@ -44,6 +75,15 @@ export function AdminDashboardPage() {
   ];
 
   const ap = adminPaths();
+
+  if (loading) {
+    return (
+      <div className="space-y-3">
+        <div className="skeleton h-8 w-64 rounded-2xl" />
+        <div className="skeleton h-48 rounded-2xl" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -68,23 +108,23 @@ export function AdminDashboardPage() {
         </div>
       </div>
       <div className="grid gap-4 md:grid-cols-3">
-        <Card title="Total users" description="All roles">
-          <p className="text-3xl font-bold text-teal-300">{dummyPlatformUsers.length + 1204}</p>
+        <Card title="Total users" description="All roles (from API)">
+          <p className="text-3xl font-bold text-teal-300">{users.length}</p>
         </Card>
-        <Card title="Monthly active" description="Rolling 30 days">
-          <p className="text-3xl font-bold text-[var(--text)]">8.4k</p>
+        <Card title="Pending approvals" description="Students & instructors">
+          <p className="text-3xl font-bold text-[var(--text)]">{users.filter((u) => u.status === "pending").length}</p>
         </Card>
-        <Card title="Open reports" description="Needs review">
-          <p className="text-3xl font-bold text-teal-200">12</p>
+        <Card title="Activity entries" description="Audit log rows loaded">
+          <p className="text-3xl font-bold text-teal-200">{activity.length}</p>
         </Card>
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card title="User management" description="Recently active accounts (sample rows)">
-          <Table columns={columns} rows={dummyPlatformUsers} empty="No users" />
+        <Card title="User management" description="Directory snapshot">
+          <Table columns={columns} rows={users.slice(0, 8)} empty="No users" />
         </Card>
         <Card title="Activity log" description="Latest administrative events">
           <div className="space-y-3">
-            {dummyActivity.map((log) => (
+            {activity.map((log) => (
               <div
                 key={log.id}
                 className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm shadow-inner"
@@ -98,6 +138,7 @@ export function AdminDashboardPage() {
                 </p>
               </div>
             ))}
+            {!activity.length ? <p className="text-sm text-[var(--muted)]">No activity yet.</p> : null}
           </div>
         </Card>
       </div>

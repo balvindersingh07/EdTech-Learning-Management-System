@@ -1,5 +1,12 @@
 export type UserRole = "student" | "instructor" | "admin";
 
+/** Subject / discipline — built-in codes use the `lms-subj-` prefix; instructors may add more. */
+export interface SubjectOption {
+  code: string;
+  name: string;
+  builtIn?: boolean;
+}
+
 export interface User {
   id: string;
   name: string;
@@ -27,6 +34,11 @@ export interface Course {
   slug: string;
   instructorId: string;
   instructorName: string;
+  /** Subject code (e.g. lms-subj-engineering) */
+  subject?: string;
+  subjectName?: string;
+  /** Seeded catalog entries; not editable via instructor API */
+  isBuiltIn?: boolean;
   description: string;
   level: "Beginner" | "Intermediate" | "Advanced";
   category: string;
@@ -58,6 +70,27 @@ export interface Submission {
   feedback?: string;
 }
 
+/** Instructor dashboard — submission row from GET /instructor/submissions/recent */
+export interface InstructorRecentSubmission extends Submission {
+  assignmentTitle: string;
+  courseId?: string;
+}
+
+/** GET /instructor/reports/summary */
+export interface InstructorTeachingSummary {
+  courseCount: number;
+  assignmentCount: number;
+  submissionCount: number;
+  gradingPending: number;
+  courses: {
+    id: string;
+    title: string;
+    enrolledCount: number;
+    subjectName: string;
+    barPercent: number;
+  }[];
+}
+
 export interface NotificationItem {
   id: string;
   title: string;
@@ -79,6 +112,6 @@ export interface PlatformUserRow {
   name: string;
   email: string;
   role: UserRole;
-  status: "active" | "invited" | "suspended";
+  status: "active" | "invited" | "suspended" | "pending" | "rejected";
   lastActive: string;
 }

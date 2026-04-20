@@ -2,6 +2,7 @@ import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Card } from "@/components/molecules/Card";
 import { pathsForRole } from "@/lib/appPaths";
+import type { AuthResponse, SignupPendingResponse } from "@/services/authService";
 import { signup } from "@/store/slices/authSlice";
 import type { UserRole } from "@/types";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -19,7 +20,6 @@ interface FieldErrors {
 const roles: { value: UserRole; label: string; description: string }[] = [
   { value: "student", label: "Student", description: "Enroll, learn, submit assignments" },
   { value: "instructor", label: "Instructor", description: "Author courses and grade work" },
-  { value: "admin", label: "Admin", description: "Manage users and platform health" },
 ];
 
 export function SignupPage() {
@@ -27,6 +27,7 @@ export function SignupPage() {
   const navigate = useNavigate();
   const status = useAppSelector((s) => s.auth.status);
   const serverError = useAppSelector((s) => s.auth.error);
+  const errorSource = useAppSelector((s) => s.auth.errorSource);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -73,8 +74,15 @@ export function SignupPage() {
     if (!validate()) return;
     const action = await dispatch(signup({ name, email, password, role }));
     if (signup.fulfilled.match(action)) {
+      const p = action.payload as SignupPendingResponse | AuthResponse;
+      if ("pending" in p && p.pending) {
+        toast.success(p.message);
+        navigate("/login", { replace: true });
+        return;
+      }
+      const ok = p as AuthResponse;
       toast.success("Account created");
-      navigate(pathsForRole(action.payload.user.role).dashboard, { replace: true });
+      navigate(pathsForRole(ok.user.role).dashboard, { replace: true });
     } else {
       toast.error(String(action.payload ?? "Signup failed"));
     }
@@ -90,14 +98,14 @@ export function SignupPage() {
           <p className="text-sm font-bold uppercase tracking-[0.2em] text-[var(--link-soft)]">Alma LMS</p>
           <h1 className="text-3xl font-black leading-tight text-[var(--text)] sm:text-4xl">Create your workspace</h1>
           <p className="text-[var(--muted)]">
-            Pick the role that matches how you will use the platform. Student, instructor, and admin areas stay
-            separated so each experience stays focused.
+            Students and instructors can register here. An administrator must approve your account before you can sign
+            in. The platform admin is a fixed bootstrap account (not created through this form).
           </p>
           <div className="rounded-[1.25rem] border border-white/10 bg-[var(--panel)]/70 p-4 shadow-[var(--shadow-3d)] backdrop-blur-xl">
-            <p className="text-sm font-semibold text-[var(--text)]">Why one role?</p>
+            <p className="text-sm font-semibold text-[var(--text)]">Approval flow</p>
             <p className="mt-1 text-xs text-[var(--muted)]">
-              You can add more accounts later for demos — each login maps to a single primary role for clearer security
-              boundaries.
+              After you submit this form, use the same email/password only after an admin approves you from the admin
+              directory.
             </p>
           </div>
         </div>
@@ -158,7 +166,7 @@ export function SignupPage() {
               </div>
               {errors.role ? <p className="text-sm text-red-400">{errors.role}</p> : null}
             </div>
-            {serverError && status === "failed" ? (
+            {serverError && status === "failed" && errorSource === "signup" ? (
               <p className="text-sm text-red-400" role="alert">
                 {serverError}
               </p>

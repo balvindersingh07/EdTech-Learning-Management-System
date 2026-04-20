@@ -16,17 +16,18 @@ export interface AuthResponse {
   token: string;
 }
 
+export interface SignupPendingResponse {
+  pending: true;
+  message: string;
+}
+
 export const authService = {
   async login(payload: LoginPayload): Promise<AuthResponse> {
     const { data } = await api.post<AuthResponse>("/v1/auth/login", payload);
     return data;
   },
-  async signup(payload: SignupPayload): Promise<AuthResponse> {
-    const { data } = await api.post<AuthResponse>("/v1/auth/signup", payload);
-    return data;
-  },
-  async loginWithMicrosoft(idToken: string): Promise<AuthResponse> {
-    const { data } = await api.post<AuthResponse>("/v1/auth/azure", { idToken });
+  async signup(payload: SignupPayload): Promise<AuthResponse | SignupPendingResponse> {
+    const { data } = await api.post<AuthResponse | SignupPendingResponse>("/v1/auth/signup", payload);
     return data;
   },
 };

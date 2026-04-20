@@ -66,6 +66,8 @@ export function CourseDetailPage() {
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
           <div className="absolute bottom-6 left-6 right-6 space-y-2 text-white">
             <div className="flex flex-wrap gap-2">
+              {course.subjectName ? <Badge tone="warning">{course.subjectName}</Badge> : null}
+              {course.isBuiltIn ? <Badge tone="neutral">Built-in catalog</Badge> : null}
               <Badge tone="info">{course.category}</Badge>
               <Badge tone="neutral">{course.level}</Badge>
               <Badge tone="success">★ {course.rating.toFixed(1)}</Badge>
