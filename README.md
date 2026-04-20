@@ -156,7 +156,8 @@ Copy `.env.example` to `.env` and adjust. Common entries:
 | `npm run db:migrate` | Apply migrations (dev) |
 | `npm run db:push` | Push schema (prototyping; prefer migrate for teams) |
 | `npm run db:studio` | Prisma Studio GUI |
-| `npm start` | **`prisma migrate deploy`** then **`node backend/src/server.js`** — used by Azure App Service and other PaaS hosts |
+| `npm start` | **`node backend/src/server.js`** — runs best-effort `prisma migrate deploy` inside the process (failures are logged; API still starts). Azure / PaaS default. |
+| `npm run start:with-migrate` | Strict **`prisma migrate deploy`** then server (CI or when you want a hard fail on migrate) |
 
 ---
 
@@ -275,9 +276,9 @@ Optional: `ADMIN_EMAIL`, `ADMIN_PASSWORD` (see `.env.example`). **`PORT`** is as
 ### 3. Deployment
 
 - **Deployment Center**: connect your GitHub repo and branch **`main`**, enable **build** on the server (Oryx). The repo `npm run build` runs the frontend TypeScript check and Vite build; that is acceptable for deploys.
-- **Startup command** (Configuration → General settings): leave default **`npm start`** so Azure runs `prisma migrate deploy` then `node backend/src/server.js`.
+- **Startup command** (Configuration → General settings): leave default **`npm start`** (`node backend/src/server.js`). Migrations run inside startup and **do not** block the process from listening if they fail (check **Log stream** for `[LMS] prisma migrate deploy failed`).
 
-First request after deploy may take longer while migrations run.
+First cold start may take longer while Prisma runs.
 
 ### 4. CORS + Vercel
 

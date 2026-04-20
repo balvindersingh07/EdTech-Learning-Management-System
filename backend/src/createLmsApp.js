@@ -90,6 +90,15 @@ export function createLmsApp() {
 
   app.get("/health", (_req, res) => res.json({ ok: true }));
 
+  app.get("/api", (_req, res) => {
+    res.status(200).json({
+      message: "LMS REST API lives under /api/v1",
+      apiPrefix: config.apiPrefix,
+      docs: "/docs",
+      health: "/health",
+    });
+  });
+
   /** Human-readable pointers (no Swagger bundle in this capstone). */
   app.get("/docs", (_req, res) => {
     const p = config.apiPrefix;
