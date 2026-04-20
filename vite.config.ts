@@ -20,11 +20,11 @@ function lmsApiDevPlugin(): Plugin {
   };
 }
 
-export default defineConfig({
-  plugins: [react(), lmsApiDevPlugin()],
+export default defineConfig(({ mode }) => ({
+  plugins: [react(), ...(mode === "development" ? [lmsApiDevPlugin()] : [])],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
-});
+}));

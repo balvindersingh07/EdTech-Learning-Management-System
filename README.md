@@ -235,6 +235,15 @@ Details: [`docs/capstone/PHASE6_TESTING.md`](docs/capstone/PHASE6_TESTING.md).
 
 ---
 
+## Deploy frontend (Vercel)
+
+1. In [Vercel](https://vercel.com) → **Add New Project** → import this GitHub repo.
+2. **Root Directory** `./`, **Framework Preset** Vite (auto). Build: `npm run build`, output: `dist` (defaults).
+3. **Environment variables** (required for a working site): set **`VITE_API_URL`** to your **hosted Express API** base path ending in `/api`, for example `https://your-service.onrender.com/api`. The UI calls paths like `/v1/auth/login` under that base (full URLs become `.../api/v1/...`). Deploy the backend separately (Render, Railway, Fly.io, a VPS, etc.); Vercel does not run `backend/src/server.js` with this setup.
+4. `vercel.json` adds a SPA fallback so React Router deep links (e.g. `/app/student/...`) resolve after refresh.
+
+---
+
 ## Security notes (demo)
 
 - Default JWT secret and admin password are for **local demonstration only**. **Rotate** `JWT_SECRET`, `ADMIN_PASSWORD`, and database paths before any shared or production deployment.
