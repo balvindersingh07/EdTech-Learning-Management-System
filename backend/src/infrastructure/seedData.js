@@ -1,7 +1,3 @@
-/** Short public MP4 so seeded “video” lectures play in the curriculum UI (demo). */
-const DEMO_LECTURE_VIDEO_MP4 =
-  "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/video/dummy.mp4";
-
 export const seedData = {
   users: [
     {
@@ -38,13 +34,7 @@ export const seedData = {
           id: "lms-mod-fs-foundations",
           title: "Foundations",
           lectures: [
-            {
-              id: "lms-lec-fs-1",
-              title: "How the web works",
-              durationMin: 18,
-              type: "video",
-              contentUrl: DEMO_LECTURE_VIDEO_MP4,
-            },
+            { id: "lms-lec-fs-1", title: "How the web works", durationMin: 18, type: "video" },
             { id: "lms-lec-fs-2", title: "HTTP & REST recap", durationMin: 22, type: "reading" },
           ],
         },
@@ -52,20 +42,8 @@ export const seedData = {
           id: "lms-mod-fs-react",
           title: "React deep dive",
           lectures: [
-            {
-              id: "lms-lec-fs-3",
-              title: "Hooks in production",
-              durationMin: 35,
-              type: "video",
-              contentUrl: DEMO_LECTURE_VIDEO_MP4,
-            },
-            {
-              id: "lms-lec-fs-4",
-              title: "State machines",
-              durationMin: 28,
-              type: "video",
-              contentUrl: DEMO_LECTURE_VIDEO_MP4,
-            },
+            { id: "lms-lec-fs-3", title: "Hooks in production", durationMin: 35, type: "video" },
+            { id: "lms-lec-fs-4", title: "State machines", durationMin: 28, type: "video" },
             { id: "lms-lec-fs-5", title: "Quiz: React patterns", durationMin: 12, type: "quiz" },
           ],
         },
@@ -93,20 +71,8 @@ export const seedData = {
           id: "lms-mod-dsa-core",
           title: "Core structures",
           lectures: [
-            {
-              id: "lms-lec-dsa-1",
-              title: "Big-O intuition",
-              durationMin: 20,
-              type: "video",
-              contentUrl: DEMO_LECTURE_VIDEO_MP4,
-            },
-            {
-              id: "lms-lec-dsa-2",
-              title: "Stacks & queues",
-              durationMin: 26,
-              type: "video",
-              contentUrl: DEMO_LECTURE_VIDEO_MP4,
-            },
+            { id: "lms-lec-dsa-1", title: "Big-O intuition", durationMin: 20, type: "video" },
+            { id: "lms-lec-dsa-2", title: "Stacks & queues", durationMin: 26, type: "video" },
           ],
         },
       ],
@@ -131,15 +97,7 @@ export const seedData = {
         {
           id: "lms-mod-pm-discovery",
           title: "Discovery",
-          lectures: [
-            {
-              id: "lms-lec-pm-1",
-              title: "Problem framing",
-              durationMin: 24,
-              type: "video",
-              contentUrl: DEMO_LECTURE_VIDEO_MP4,
-            },
-          ],
+          lectures: [{ id: "lms-lec-pm-1", title: "Problem framing", durationMin: 24, type: "video" }],
         },
       ],
     },
