@@ -23,6 +23,8 @@ A **modular Learning Management System** capstone: role-separated experiences fo
 - [Design documentation](#design-documentation)
 - [Testing](#testing)
 - [Persistence model](#persistence-model)
+- [Deploy frontend (Vercel)](#deploy-frontend-vercel)
+- [Deploy backend (Azure App Service)](#deploy-backend-azure-app-service)
 - [Security notes (demo)](#security-notes-demo)
 
 ---
@@ -76,7 +78,7 @@ flowchart LR
 |-------|---------|
 | **UI** | React 19, React Router 7, Redux Toolkit, Tailwind CSS, Vite 6 |
 | **API** | Express 4, `jsonwebtoken`, CORS |
-| **Data** | Prisma 5 + SQLite (`prisma/dev.db`); runtime graph serialized to **`AppStateSnapshot`** when using standalone `server.js` |
+| **Data** | Prisma 5 + SQLite (path from **`DATABASE_URL`**, default `file:./prisma/dev.db`); runtime graph serialized to **`AppStateSnapshot`** when using standalone `server.js` |
 | **Quality** | TypeScript, ESLint, Vitest |
 
 ---
@@ -97,6 +99,8 @@ npm install
 ```
 
 ### Database (first run)
+
+Ensure **`.env`** includes `DATABASE_URL` (see `.env.example`), then:
 
 ```bash
 npm run db:generate
@@ -130,8 +134,9 @@ Copy `.env.example` to `.env` and adjust. Common entries:
 | `ADMIN_EMAIL` | Node API | Override bootstrap admin email |
 | `ADMIN_PASSWORD` | Node API | Override bootstrap admin password |
 | `JWT_SECRET` | Node API | JWT signing secret (change for any shared environment) |
+| `DATABASE_URL` | Prisma / API | SQLite connection string, e.g. `file:./prisma/dev.db` (required for `db:migrate` and Azure) |
 | `VITE_API_URL` | Vite | API base URL (default `/api` for embedded API) |
-| `PORT` | Standalone API | Listen port (default `4000`) |
+| `PORT` | Standalone API | Listen port (default `4000`; Azure sets `PORT` automatically) |
 
 ---
 
@@ -151,6 +156,7 @@ Copy `.env.example` to `.env` and adjust. Common entries:
 | `npm run db:migrate` | Apply migrations (dev) |
 | `npm run db:push` | Push schema (prototyping; prefer migrate for teams) |
 | `npm run db:studio` | Prisma Studio GUI |
+| `npm start` | **`prisma migrate deploy`** then **`node backend/src/server.js`** — used by Azure App Service and other PaaS hosts |
 
 ---
 
@@ -229,7 +235,7 @@ npm test
 | Mode | Behavior |
 |------|----------|
 | **`npm run dev`** (Vite) | In-memory seed for fast iteration; state resets when the dev server restarts. |
-| **`npm run dev:api`** (`server.js`) | After each successful `store.withWrite`, the **entire LMS graph** is serialized to SQLite table **`AppStateSnapshot`** (single row). Survives API process restarts. |
+| **`npm run dev:api`** (`server.js`) | After each successful `store.withWrite`, the **entire LMS graph** is serialized to SQLite table **`AppStateSnapshot`** (single row). Survives API process restarts. Requires **`DATABASE_URL`** (e.g. `file:./prisma/dev.db`). |
 
 Details: [`docs/capstone/PHASE6_TESTING.md`](docs/capstone/PHASE6_TESTING.md).
 
@@ -239,8 +245,47 @@ Details: [`docs/capstone/PHASE6_TESTING.md`](docs/capstone/PHASE6_TESTING.md).
 
 1. In [Vercel](https://vercel.com) → **Add New Project** → import this GitHub repo.
 2. **Root Directory** `./`, **Framework Preset** Vite (auto). Build: `npm run build`, output: `dist` (defaults).
-3. **Environment variables** (required for a working site): set **`VITE_API_URL`** to your **hosted Express API** base path ending in `/api`, for example `https://your-service.onrender.com/api`. The UI calls paths like `/v1/auth/login` under that base (full URLs become `.../api/v1/...`). Deploy the backend separately (Render, Railway, Fly.io, a VPS, etc.); Vercel does not run `backend/src/server.js` with this setup.
+3. **Environment variables** (required for a working site): set **`VITE_API_URL`** to your **hosted Express API** base path ending in `/api`, for example `https://<your-app>.azurewebsites.net/api` or `https://your-service.onrender.com/api`. The UI calls paths like `/v1/auth/login` under that base (full URLs become `.../api/v1/...`). Deploy the backend separately; Vercel does not run `backend/src/server.js` with this setup.
 4. `vercel.json` adds a SPA fallback so React Router deep links (e.g. `/app/student/...`) resolve after refresh.
+
+---
+
+## Deploy backend (Azure App Service)
+
+Target: **Linux** Web App, **Node 20 LTS**, deploy **this same repo** (monorepo). The API listens on **`process.env.PORT`** and serves routes under **`/api/v1`**.
+
+### 1. Create the Web App
+
+1. [Azure Portal](https://portal.azure.com) → **Create a resource** → **Web App**.
+2. **Publish**: Code · **Runtime stack**: Node 20 LTS · **Operating System**: Linux.
+3. **App Service Plan**: any tier that allows outbound HTTPS (Free F1 is enough for demos; cold starts apply).
+
+### 2. Application settings (Configuration → Application settings)
+
+Add at least:
+
+| Name | Example value | Notes |
+|------|----------------|-------|
+| `DATABASE_URL` | `file:./prisma/prod.db` | SQLite file under `/home/site/wwwroot/prisma/` — persists across restarts on Linux App Service. |
+| `JWT_SECRET` | long random string | Do not use the dev default in shared environments. |
+| `NODE_ENV` | `production` | Recommended. |
+
+Optional: `ADMIN_EMAIL`, `ADMIN_PASSWORD` (see `.env.example`). **`PORT`** is assigned by the platform — do not override unless you know the requirement for your SKU.
+
+### 3. Deployment
+
+- **Deployment Center**: connect your GitHub repo and branch **`main`**, enable **build** on the server (Oryx). The repo `npm run build` runs the frontend TypeScript check and Vite build; that is acceptable for deploys.
+- **Startup command** (Configuration → General settings): leave default **`npm start`** so Azure runs `prisma migrate deploy` then `node backend/src/server.js`.
+
+First request after deploy may take longer while migrations run.
+
+### 4. CORS + Vercel
+
+The API uses permissive CORS for demos (`origin: true`). Point your Vercel **`VITE_API_URL`** at `https://<your-webapp-name>.azurewebsites.net/api` and redeploy the frontend.
+
+### 5. Health check
+
+Use **`/health`** as a lightweight probe path if you configure App Service **Health check**.
 
 ---
 
