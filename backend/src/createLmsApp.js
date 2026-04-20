@@ -90,6 +90,26 @@ export function createLmsApp() {
 
   app.get("/health", (_req, res) => res.json({ ok: true }));
 
+  /** Human-readable pointers (no Swagger bundle in this capstone). */
+  app.get("/docs", (_req, res) => {
+    const p = config.apiPrefix;
+    const repo = "https://github.com/balvindersingh07/EdTech-Learning-Management-System/tree/main/docs/capstone";
+    res.type("html").send(`<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><title>LMS API</title>
+<style>body{font-family:system-ui,sans-serif;max-width:44rem;margin:2rem;line-height:1.5}</style></head><body>
+<h1>EdTech LMS API</h1>
+<p>This server does not serve OpenAPI at <code>/docs</code>. Capstone write-ups (phases, patterns) live in the repo: <a href="${repo}">docs/capstone</a>.</p>
+<h2>Useful routes</h2>
+<ul>
+<li><code>GET /health</code> — liveness</li>
+<li><code>GET ${p}/catalog/subjects</code> — public catalog</li>
+<li><code>POST ${p}/auth/login</code> — JSON body <code>{ "email", "password" }</code></li>
+<li><code>POST ${p}/auth/signup</code> — register (student/instructor; admin approval flow)</li>
+<li>Role APIs under <code>${p}/student</code>, <code>${p}/instructor</code>, <code>${p}/admin</code> (JWT)</li>
+</ul>
+<p><strong>SPA / Vercel:</strong> set <code>VITE_API_URL</code> to this host + <code>/api</code> (axios adds <code>/v1/...</code>).</p>
+</body></html>`);
+  });
+
   app.get(`${config.apiPrefix}/catalog/subjects`, (_req, res) => {
     return res.json(store.listSubjects());
   });
