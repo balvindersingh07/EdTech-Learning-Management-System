@@ -345,7 +345,7 @@ npm test
 
 ### Gallery (renders on GitHub)
 
-Add PNGs under [`docs/screenshots/`](docs/screenshots/) using the names below — they will show on the repo home once committed.
+Use **Markdown images** (`![alt](path)`), paths **from repo root**, same as the table below. (Avoid `assets/screenshot.png` unless that file exists — this project keeps images in [`docs/screenshots/`](docs/screenshots/).)
 
 | Screenshot | File name |
 |------------|-----------|
@@ -356,24 +356,25 @@ Add PNGs under [`docs/screenshots/`](docs/screenshots/) using the names below �
 | **Student** — learning hub | [`docs/screenshots/ui-student-dashboard.png`](docs/screenshots/ui-student-dashboard.png) |
 | **Instructor** — teaching overview | [`docs/screenshots/ui-instructor-dashboard.png`](docs/screenshots/ui-instructor-dashboard.png) |
 
-<p align="center">
-  <b>CI/CD — GitHub Actions → Azure</b><br/>
-  <img src="docs/screenshots/ci-github-actions-azure.png" alt="GitHub Actions workflow success" width="720"/>
-</p>
+#### CI/CD — workflow + proof
 
-<p align="center">
-  <b>Repository governance</b><br/>
-  <img src="docs/screenshots/github-branch-protection-main.png" alt="Branch protection on main" width="720"/>
-  ·
-  <img src="docs/screenshots/github-pr-grading-merged.png" alt="Merged pull request" width="720"/>
-</p>
+Workflow: [`.github/workflows/main_edtech-lms-api-balvinder.yml`](.github/workflows/main_edtech-lms-api-balvinder.yml)
 
-<p align="center">
-  <b>Alma LMS — role dashboards</b><br/>
-  <img src="docs/screenshots/ui-admin-dashboard.png" alt="Admin dashboard" width="320"/>
-  <img src="docs/screenshots/ui-student-dashboard.png" alt="Student dashboard" width="320"/>
-  <img src="docs/screenshots/ui-instructor-dashboard.png" alt="Instructor dashboard" width="320"/>
-</p>
+![GitHub Actions: successful build and deploy to Azure Web App](docs/screenshots/ci-github-actions-azure.png)
+
+#### Repository governance
+
+![Branch protection on main](docs/screenshots/github-branch-protection-main.png)
+
+![Merged pull request example](docs/screenshots/github-pr-grading-merged.png)
+
+#### Alma LMS — role dashboards
+
+![Admin dashboard](docs/screenshots/ui-admin-dashboard.png)
+
+![Student dashboard](docs/screenshots/ui-student-dashboard.png)
+
+![Instructor dashboard](docs/screenshots/ui-instructor-dashboard.png)
 
 **Setup:** Files under `docs/screenshots/*.png` are committed so the gallery renders on GitHub; they are **styled placeholders** until you overwrite them with real captures (keep the same filenames), then `git add` → commit → push. Do not commit images that show secrets (tokens, `.env` values).
 

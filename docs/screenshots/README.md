@@ -4,6 +4,13 @@
 
 **Do not commit secrets.** Avoid screenshots that show `.env`, JWT tokens, or production passwords.
 
+### Image not showing on GitHub?
+
+- Path must match the committed file exactly (GitHub is **case-sensitive**): e.g. `docs/screenshots/ci-github-actions-azure.png`.
+- Prefer `![alt](docs/screenshots/file.png)` in README (repo root). Do **not** use Windows paths (`E:\...`) or missing folders (e.g. `assets/screenshot.png` if you never added that file).
+- The PNG must be on the **default branch** you are viewing (usually `main`).
+- If a workflow **generates** the image, the job must **commit and push** that file (with `contents: write` / token permissions); otherwise the README link stays broken.
+
 ## Gallery files (linked from root `README.md`)
 
 | File | Content |
