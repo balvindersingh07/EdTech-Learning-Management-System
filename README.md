@@ -12,26 +12,50 @@ A **modular Learning Management System** capstone: role-separated experiences fo
 ## Table of contents
 
 - [Overview](#overview)
+- [Academic submission documentation](#academic-submission-documentation)
 - [Features](#features)
 - [Architecture](#architecture)
+- [UML & design documentation](#uml--design-documentation)
 - [Tech stack](#tech-stack)
 - [Getting started](#getting-started)
 - [Environment variables](#environment-variables)
 - [Scripts](#scripts)
 - [API surface](#api-surface)
 - [Repository layout](#repository-layout)
-- [Design documentation](#design-documentation)
+- [Design documentation (phases)](#design-documentation-phases)
 - [Testing](#testing)
+- [Screenshots (submission)](#screenshots-submission)
 - [Persistence model](#persistence-model)
 - [Deploy frontend (Vercel)](#deploy-frontend-vercel)
 - [Deploy backend (Azure App Service)](#deploy-backend-azure-app-service)
 - [Security notes (demo)](#security-notes-demo)
+- [Future improvements](#future-improvements)
+- [Contributing](#contributing)
+- [License](#license)
+- [Acknowledgement](#acknowledgement)
 
 ---
 
 ## Overview
 
 This project models a real-world **EdTech platform**: catalog and enrollment for learners, course authoring and grading for faculty, and user governance plus reports for operators. The codebase is organized to demonstrate **encapsulation**, **abstraction**, **polymorphism** (role profiles), **SOLID**, and **six or more GoF-style patterns** with traceable file locations and phase documentation under `docs/capstone/`.
+
+---
+
+## Academic submission documentation
+
+**Evaluator-facing index:** [`docs/README.md`](docs/README.md)
+
+| Topic | Document |
+|-------|----------|
+| Architecture (layers, MVC map, hex, scale/cache/concurrency) | [`docs/architecture-overview.md`](docs/architecture-overview.md) |
+| UML class & sequence (Mermaid) | [`docs/uml/class-diagram.md`](docs/uml/class-diagram.md), [`docs/uml/sequence-diagram.md`](docs/uml/sequence-diagram.md) |
+| Design patterns (table + rationale) | [`docs/patterns/design-patterns.md`](docs/patterns/design-patterns.md) |
+| SOLID & OOP mapping | [`docs/solid-principles.md`](docs/solid-principles.md) |
+| Refactoring / anti-patterns | [`docs/refactoring.md`](docs/refactoring.md) |
+| Testing guide | [`docs/testing/testing-guide.md`](docs/testing/testing-guide.md) |
+| Demo & video outline | [`docs/final-presentation/demo-script.md`](docs/final-presentation/demo-script.md), [`docs/final-presentation/video-flow.md`](docs/final-presentation/video-flow.md) |
+| Screenshot checklists | [`docs/screenshots/`](docs/screenshots/) |
 
 ---
 
@@ -51,6 +75,8 @@ This project models a real-world **EdTech platform**: catalog and enrollment for
 
 High level: **React SPA** talks to **REST JSON API** under `/api/v1`. Development can run the API **inside Vite** (same origin) or as a **standalone Node** process with **Prisma-backed** snapshot persistence.
 
+**Extended (submission):** layered vs MVC vs hexagonal notes, caching, and concurrency — see **[`docs/architecture-overview.md`](docs/architecture-overview.md)** (figures in Mermaid).
+
 ```mermaid
 flowchart LR
   subgraph client [React Client]
@@ -69,6 +95,19 @@ flowchart LR
   M --> P
   P --> ST
 ```
+
+---
+
+## UML & design documentation
+
+| Asset | Link |
+|-------|------|
+| Class diagram (extended) | [`docs/uml/class-diagram.md`](docs/uml/class-diagram.md) |
+| Sequence diagram (grading) | [`docs/uml/sequence-diagram.md`](docs/uml/sequence-diagram.md) |
+| Requirements + domain UML | [`docs/capstone/PHASE1_DOMAIN.md`](docs/capstone/PHASE1_DOMAIN.md) |
+| Pattern catalog (assessor table) | [`docs/patterns/design-patterns.md`](docs/patterns/design-patterns.md) |
+
+Export diagrams for PDF/slides using [mermaid.live](https://mermaid.live) or any Mermaid-capable preview.
 
 ---
 
@@ -188,7 +227,13 @@ Full behavior is documented in `docs/capstone/PHASE1_DOMAIN.md` (requirements) a
 │   ├── interfaces/http/ # Routers + middleware
 │   └── patterns/          # Singleton, Factory, Builder, Adapter, Bridge, Decorators, Observer, Strategy, State
 ├── backend/tests/         # Vitest tests
-├── docs/capstone/         # Phase 1–6 + submission / evaluation guide
+├── docs/                  # Submission index: README.md; uml, patterns, testing, screenshots, etc.
+│   ├── capstone/          # Phase 1–6 + evaluation guide
+│   ├── final-presentation/
+│   ├── patterns/
+│   ├── screenshots/
+│   ├── testing/
+│   └── uml/
 ├── prisma/                # Schema, migrations, SQLite file (gitignored if local only — see .gitignore)
 ├── src/                   # React app (pages, components, store, services)
 └── package.json
@@ -206,7 +251,7 @@ Full behavior is documented in `docs/capstone/PHASE1_DOMAIN.md` (requirements) a
 
 ---
 
-## Design documentation
+## Design documentation (phases)
 
 | Document | Content |
 |----------|---------|
@@ -216,7 +261,9 @@ Full behavior is documented in `docs/capstone/PHASE1_DOMAIN.md` (requirements) a
 | [`docs/capstone/PHASE4_ARCHITECTURE.md`](docs/capstone/PHASE4_ARCHITECTURE.md) | Layered architecture, caching, concurrency |
 | [`docs/capstone/PHASE5_REFACTORING.md`](docs/capstone/PHASE5_REFACTORING.md) | Anti-patterns and refactors |
 | [`docs/capstone/PHASE6_TESTING.md`](docs/capstone/PHASE6_TESTING.md) | Tests, observability, packaging, persistence |
-| [`docs/capstone/SUBMISSION_EVALUATION_GUIDE.md`](docs/capstone/SUBMISSION_EVALUATION_GUIDE.md) | Rubric alignment, video outline, pattern–problem table |
+| [`docs/capstone/SUBMISSION_EVALUATION_GUIDE.md`](docs/capstone/SUBMISSION_EVALUATION_GUIDE.md) | Rubric alignment, video outline, pattern table |
+
+**Also see:** consolidated guides under [`docs/`](docs/README.md) (`architecture-overview.md`, `solid-principles.md`, `refactoring.md`, etc.).
 
 ---
 
@@ -228,6 +275,21 @@ npm test
 
 - **Unit:** grading strategies (`backend/tests/gradingStrategy.test.js`) — no Express boot.
 - **Smoke:** HTTP checks against `createLmsApp()` (`backend/tests/api.smoke.test.js`) — health, catalog, admin login, stats.
+
+**Full guide:** [`docs/testing/testing-guide.md`](docs/testing/testing-guide.md) (Vitest, mocks, coverage placeholder).
+
+---
+
+## Screenshots (submission)
+
+This repo uses **markdown checklists** so you can add PNG/SVG proof without bloating git history until needed:
+
+- [`docs/screenshots/github-proof.md`](docs/screenshots/github-proof.md) — repo, commits, tree  
+- [`docs/screenshots/uml-proof.md`](docs/screenshots/uml-proof.md) — exported diagrams  
+- [`docs/screenshots/testing-proof.md`](docs/screenshots/testing-proof.md) — `npm test` / coverage  
+- [`docs/screenshots/architecture-proof.md`](docs/screenshots/architecture-proof.md) — architecture figures  
+
+Optional: place images under `docs/screenshots/` with the names suggested in [`docs/screenshots/README.md`](docs/screenshots/README.md).
 
 ---
 
@@ -290,6 +352,21 @@ Use **`/health`** as a lightweight probe path if you configure App Service **Hea
 
 ---
 
+## Future improvements
+
+- **Normalized persistence** (PostgreSQL) per bounded context instead of JSON snapshot for reporting at very large scale  
+- **Microservices** split (auth, catalog, grading) behind API gateway — described as evolution path in [`docs/architecture-overview.md`](docs/architecture-overview.md)  
+- **E2E** tests (Playwright/Cypress) for critical learner/instructor flows  
+- **Stricter CORS**, rotating secrets, and structured logging (Pino) + distributed tracing in production  
+
+---
+
+## Contributing
+
+See **[`CONTRIBUTING.md`](CONTRIBUTING.md)** for capstone-safe contribution guidelines.
+
+---
+
 ## Security notes (demo)
 
 - Default JWT secret and admin password are for **local demonstration only**. **Rotate** `JWT_SECRET`, `ADMIN_PASSWORD`, and database paths before any shared or production deployment.
@@ -300,7 +377,9 @@ Use **`/health`** as a lightweight probe path if you configure App Service **Hea
 
 ## License
 
-Private / educational capstone project unless otherwise specified by the author.
+Licensed under the **MIT License** — see [`LICENSE`](LICENSE).
+
+This repository is submitted primarily for **academic evaluation**; ensure your institution’s originality and licensing requirements are met.
 
 ---
 
