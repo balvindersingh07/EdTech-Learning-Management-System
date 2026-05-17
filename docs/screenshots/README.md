@@ -4,7 +4,18 @@
 
 **Do not commit secrets.** Avoid screenshots that show `.env`, JWT tokens, or production passwords.
 
-## Suggested files (add when ready)
+## Gallery files (linked from root `README.md`)
+
+| File | Content |
+|------|---------|
+| `ci-github-actions-azure.png` | Actions tab — green run: **Build and deploy Node.js app to Azure Web App** (build + deploy jobs). |
+| `github-branch-protection-main.png` | Settings → Branches — protection rule on `main`. |
+| `github-pr-grading-merged.png` | Merged PR (e.g. grading / Strategy pattern). |
+| `ui-admin-dashboard.png` | Admin control center / user directory. |
+| `ui-student-dashboard.png` | Student learning hub. |
+| `ui-instructor-dashboard.png` | Instructor teaching overview. |
+
+## Optional extra files
 
 | File | Suggested content |
 |------|-------------------|

@@ -95,7 +95,7 @@ Quick map from the **official capstone brief** to this repository — for evalua
 
 ### Screenshots for report / video
 
-After **`npm run dev`**, capture: **Admin** (control center, user directory, activity), **Student** (learning hub, catalog), **Instructor** (teaching overview, grading queue). Checklists: [`docs/screenshots/`](docs/screenshots/).
+After **`npm run dev`**, capture: **Admin** (control center, user directory, activity), **Student** (learning hub, catalog), **Instructor** (teaching overview, grading queue). **GitHub-visible gallery** (commit PNGs first): [Screenshots (submission)](#screenshots-submission). Checklists: [`docs/screenshots/`](docs/screenshots/).
 
 ### Grading note
 
@@ -343,14 +343,48 @@ npm test
 
 ## Screenshots (submission)
 
-This repo uses **markdown checklists** so you can add PNG/SVG proof without bloating git history until needed:
+### Gallery (renders on GitHub)
+
+Add PNGs under [`docs/screenshots/`](docs/screenshots/) using the names below — they will show on the repo home once committed.
+
+| Screenshot | File name |
+|------------|-----------|
+| **GitHub Actions** — successful workflow (`build` + `deploy` to Azure) | [`docs/screenshots/ci-github-actions-azure.png`](docs/screenshots/ci-github-actions-azure.png) |
+| **Branch protection** — rule on `main` | [`docs/screenshots/github-branch-protection-main.png`](docs/screenshots/github-branch-protection-main.png) |
+| **Pull request** — merged feature (e.g. grading / Strategy) | [`docs/screenshots/github-pr-grading-merged.png`](docs/screenshots/github-pr-grading-merged.png) |
+| **Admin** — control center / user directory | [`docs/screenshots/ui-admin-dashboard.png`](docs/screenshots/ui-admin-dashboard.png) |
+| **Student** — learning hub | [`docs/screenshots/ui-student-dashboard.png`](docs/screenshots/ui-student-dashboard.png) |
+| **Instructor** — teaching overview | [`docs/screenshots/ui-instructor-dashboard.png`](docs/screenshots/ui-instructor-dashboard.png) |
+
+<p align="center">
+  <b>CI/CD — GitHub Actions → Azure</b><br/>
+  <img src="docs/screenshots/ci-github-actions-azure.png" alt="GitHub Actions workflow success" width="720"/>
+</p>
+
+<p align="center">
+  <b>Repository governance</b><br/>
+  <img src="docs/screenshots/github-branch-protection-main.png" alt="Branch protection on main" width="720"/>
+  ·
+  <img src="docs/screenshots/github-pr-grading-merged.png" alt="Merged pull request" width="720"/>
+</p>
+
+<p align="center">
+  <b>Alma LMS — role dashboards</b><br/>
+  <img src="docs/screenshots/ui-admin-dashboard.png" alt="Admin dashboard" width="320"/>
+  <img src="docs/screenshots/ui-student-dashboard.png" alt="Student dashboard" width="320"/>
+  <img src="docs/screenshots/ui-instructor-dashboard.png" alt="Instructor dashboard" width="320"/>
+</p>
+
+**Setup:** Export screenshots from your machine → save with the exact paths above → `git add docs/screenshots/*.png` → commit → push. Do not commit images that show secrets (tokens, `.env` values).
+
+### Checklists (extra proof for report / viva)
 
 - [`docs/screenshots/github-proof.md`](docs/screenshots/github-proof.md) — repo, commits, tree  
 - [`docs/screenshots/uml-proof.md`](docs/screenshots/uml-proof.md) — exported diagrams  
 - [`docs/screenshots/testing-proof.md`](docs/screenshots/testing-proof.md) — `npm test` / coverage  
 - [`docs/screenshots/architecture-proof.md`](docs/screenshots/architecture-proof.md) — architecture figures  
 
-Optional: place images under `docs/screenshots/` with the names suggested in [`docs/screenshots/README.md`](docs/screenshots/README.md).
+Naming reference: [`docs/screenshots/README.md`](docs/screenshots/README.md).
 
 ---
 

@@ -11,3 +11,5 @@ Capture **after** your final push to `main` (or your submission branch).
 **Optional:** Contributors graph or Insights → Network.
 
 Save images as `docs/screenshots/github-*.png` or attach directly to your report.
+
+**For the README gallery:** at minimum add `ci-github-actions-azure.png` (workflow success) and optionally `github-branch-protection-main.png`, `github-pr-grading-merged.png` so they render on GitHub.
