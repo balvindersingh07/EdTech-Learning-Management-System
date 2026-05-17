@@ -12,6 +12,7 @@ A **modular Learning Management System** capstone: role-separated experiences fo
 ## Table of contents
 
 - [Overview](#overview)
+- [Capstone rubric alignment (college requirements)](#capstone-rubric-alignment-college-requirements)
 - [Academic submission documentation](#academic-submission-documentation)
 - [Features](#features)
 - [Architecture](#architecture)
@@ -39,6 +40,66 @@ A **modular Learning Management System** capstone: role-separated experiences fo
 ## Overview
 
 This project models a real-world **EdTech platform**: catalog and enrollment for learners, course authoring and grading for faculty, and user governance plus reports for operators. The codebase is organized to demonstrate **encapsulation**, **abstraction**, **polymorphism** (role profiles), **SOLID**, and **six or more GoF-style patterns** with traceable file locations and phase documentation under `docs/capstone/`.
+
+---
+
+## Capstone rubric alignment (college requirements)
+
+Quick map from the **official capstone brief** to this repository — for evaluators and viva.
+
+### LMS modules (required)
+
+| Module | What you get here | Primary locations |
+|--------|-------------------|-------------------|
+| **User management** | JWT login/signup, admin approval, user directory, roles | `backend/src/interfaces/http/authController.js`, `adminRoutes.js`, `patterns/factory/UserFactory.js`, Admin UI |
+| **Course management** | Catalog, enrollment, instructor CRUD, **Builder** | `patterns/builder/CourseBuilder.js`, student/instructor routes, course pages |
+| **Assignment submission** | Student submit flow, lifecycle guards (**State**) | `patterns/state/AssignmentSubmissionState.js`, student assignment routes |
+| **Assessment grading** | **Strategy** pattern — numeric vs rubric | `patterns/strategy/GradingStrategy.js`, instructor grading UI |
+| **Notifications & reports** | Observer-style events, admin/instructor reports, **Bridge** exports | `patterns/observer/DomainEvents.js`, `patterns/bridge/ReportExporter.js`, report pages |
+
+### Design & quality requirements
+
+| Requirement | Evidence in repo |
+|-------------|------------------|
+| **OOP** (encapsulation, inheritance, abstraction, polymorphism) | [`docs/solid-principles.md`](docs/solid-principles.md), [`docs/capstone/PHASE1_DOMAIN.md`](docs/capstone/PHASE1_DOMAIN.md) |
+| **SOLID** | [`docs/capstone/PHASE2_SOLID_COURSE_MODULE.md`](docs/capstone/PHASE2_SOLID_COURSE_MODULE.md), ports (`CourseRepositoryPort`), builders |
+| **UML** | Mermaid in Phase 1 + [`docs/uml/class-diagram.md`](docs/uml/class-diagram.md), [`docs/uml/sequence-diagram.md`](docs/uml/sequence-diagram.md) — export PNG/PDF via [mermaid.live](https://mermaid.live) |
+| **≥ 6 patterns** (Singleton, Factory, Builder, Adapter, Bridge, Decorator, Observer, Strategy, State) | **10+** documented: [`docs/patterns/design-patterns.md`](docs/patterns/design-patterns.md), `backend/src/patterns/**` |
+| **Layered / MVC / hexagonal** + caching + concurrency | [`docs/architecture-overview.md`](docs/architecture-overview.md), [`docs/capstone/PHASE4_ARCHITECTURE.md`](docs/capstone/PHASE4_ARCHITECTURE.md) |
+| **Microservices** | Described as **future decomposition**; current app is a **modular monolith** with clear boundaries |
+| **Anti-patterns → refactor (2–3)** | [`docs/refactoring.md`](docs/refactoring.md), [`docs/capstone/PHASE5_REFACTORING.md`](docs/capstone/PHASE5_REFACTORING.md) |
+| **Testability**, **Strategy** tests, **Decorator** RBAC | `npm test` (Vitest), [`docs/capstone/PHASE6_TESTING.md`](docs/capstone/PHASE6_TESTING.md), `RoleGuardedHandlerDecorator.js` |
+
+### Project phases (deliverables)
+
+| Phase | Deliverable | Document |
+|-------|-------------|----------|
+| 1 | User stories, functional requirements, UML, OOP mapping | [`PHASE1_DOMAIN.md`](docs/capstone/PHASE1_DOMAIN.md) |
+| 2 | SOLID on one full module (course) | [`PHASE2_SOLID_COURSE_MODULE.md`](docs/capstone/PHASE2_SOLID_COURSE_MODULE.md) |
+| 3 | 6+ patterns, code + comments | [`PHASE3_PATTERNS.md`](docs/capstone/PHASE3_PATTERNS.md) |
+| 4 | Architecture blueprint, cache, concurrency | [`PHASE4_ARCHITECTURE.md`](docs/capstone/PHASE4_ARCHITECTURE.md) |
+| 5 | Refactoring & smells | [`PHASE5_REFACTORING.md`](docs/capstone/PHASE5_REFACTORING.md) |
+| 6 | Testing, observability, packaging | [`PHASE6_TESTING.md`](docs/capstone/PHASE6_TESTING.md) |
+
+### Tools (rubric ↔ this project)
+
+| Area | Rubric | This repo |
+|------|--------|-----------|
+| Language | Java / JavaScript / Python | **JavaScript + TypeScript** (Node, Express, React) |
+| IDE | IntelliJ / VSCode | **VS Code / Cursor** (any) |
+| UML | Lucidchart / Draw.io | **Mermaid** in `docs/` (export for report) |
+| Version control | Git / GitHub | **GitHub** — `main` / `develop`, PR workflow, branch protection on `main` |
+| Testing | JUnit / Jest / PyTest | **Vitest** — `npm test` |
+| Presentation | Loom / OBS / Slides | Outlines: [`docs/final-presentation/`](docs/final-presentation/) |
+| **CI/CD** (engineering practice) | — | **GitHub Actions** → Azure Web App ([`.github/workflows/`](.github/workflows/)); **Vercel** for frontend SPA |
+
+### Screenshots for report / video
+
+After **`npm run dev`**, capture: **Admin** (control center, user directory, activity), **Student** (learning hub, catalog), **Instructor** (teaching overview, grading queue). Checklists: [`docs/screenshots/`](docs/screenshots/).
+
+### Grading note
+
+**Local demo** (`npm run dev`, `VITE_API_URL=/api` in `.env`) is sufficient for assessment if cloud billing is unavailable. Design, docs, and automated tests are independent of paid hosting.
 
 ---
 
