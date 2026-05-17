@@ -1,6 +1,7 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
+import { getApiBaseUrl } from "@/config/apiBase";
 
-const baseURL = import.meta.env.VITE_API_URL ?? "/api";
+const baseURL = getApiBaseUrl();
 
 export const api = axios.create({
   baseURL,
@@ -26,7 +27,10 @@ api.interceptors.response.use(
     } else if (data && typeof data === "object" && "message" in data && data.message) {
       message = String(data.message);
     } else if (error.code === "ERR_NETWORK") {
-      message = "Network error — cannot reach the API.";
+      message =
+        import.meta.env.PROD
+          ? "Network error — cannot reach the API. Check Azure Web App is started and within quota (or set VITE_API_URL to your API)."
+          : "Network error — cannot reach the API.";
     } else {
       message = error.message ?? "Request failed";
     }

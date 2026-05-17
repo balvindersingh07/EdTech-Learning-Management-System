@@ -308,8 +308,9 @@ Details: [`docs/capstone/PHASE6_TESTING.md`](docs/capstone/PHASE6_TESTING.md).
 
 1. In [Vercel](https://vercel.com) → **Add New Project** → import this GitHub repo.
 2. **Root Directory** `./`, **Framework Preset** Vite (auto). Build: `npm run build`, output: `dist` (defaults).
-3. **Environment variables** (required for a working site): set **`VITE_API_URL`** to your **hosted Express API** base path ending in `/api`, for example `https://<your-app>.azurewebsites.net/api` or `https://your-service.onrender.com/api`. The UI calls paths like `/v1/auth/login` under that base (full URLs become `.../api/v1/...`). Deploy the backend separately; Vercel does not run `backend/src/server.js` with this setup.
-4. `vercel.json` adds a SPA fallback so React Router deep links (e.g. `/app/student/...`) resolve after refresh.
+3. **Environment variables** (optional but recommended): set **`VITE_API_URL`** to your **hosted Express API** base ending in `/api` (e.g. `https://your-app.azurewebsites.net/api`). If you omit it, the production build uses the default in [`src/config/apiBase.ts`](src/config/apiBase.ts) — **update that constant** when your Azure hostname changes.
+4. **Deploy / redeploy** so the build picks up env and latest `main`.
+5. `vercel.json` adds a SPA fallback so React Router deep links resolve after refresh.
 
 ---
 
