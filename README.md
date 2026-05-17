@@ -375,7 +375,7 @@ Add PNGs under [`docs/screenshots/`](docs/screenshots/) using the names below �
   <img src="docs/screenshots/ui-instructor-dashboard.png" alt="Instructor dashboard" width="320"/>
 </p>
 
-**Setup:** Export screenshots from your machine → save with the exact paths above → `git add docs/screenshots/*.png` → commit → push. Do not commit images that show secrets (tokens, `.env` values).
+**Setup:** Files under `docs/screenshots/*.png` are committed so the gallery renders on GitHub; they are **styled placeholders** until you overwrite them with real captures (keep the same filenames), then `git add` → commit → push. Do not commit images that show secrets (tokens, `.env` values).
 
 ### Checklists (extra proof for report / viva)
 
