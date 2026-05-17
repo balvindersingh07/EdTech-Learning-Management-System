@@ -376,7 +376,7 @@ Workflow: [`.github/workflows/main_edtech-lms-api-balvinder.yml`](.github/workfl
 
 ![Instructor dashboard](docs/screenshots/ui-instructor-dashboard.png)
 
-**Setup:** Files under `docs/screenshots/*.png` are committed so the gallery renders on GitHub; they are **styled placeholders** until you overwrite them with real captures (keep the same filenames), then `git add` → commit → push. Do not commit images that show secrets (tokens, `.env` values).
+**Setup:** `docs/screenshots/*.png` are **real captures** (CI/CD, branch protection, merged PR, admin/student/instructor UI). Replace and push if you refresh demos. Do not commit images that show secrets (tokens, `.env` values).
 
 ### Checklists (extra proof for report / viva)
 
